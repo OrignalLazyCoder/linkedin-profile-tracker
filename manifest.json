@@ -4,11 +4,16 @@
     "description": "Track status of linkedIn profile",
     "manifest_version": 3,
     "author": "Arpit Sharma",
-    "action":{
+    "action": {
         "default_popup": "index.html",
         "default_title": "Profile Note Taker"
     },
     "permissions": [
         "tabs"
-    ]   
+    ],
+    "icons": {
+        "16": "icon.png",
+        "48": "icon.png",
+        "128": "icon.png"
+    }
 }
