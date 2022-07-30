@@ -1,5 +1,6 @@
 let windowUrl = null;
 let currentNotesId = null;
+let search_key = "";
 
 const DATA_KEY = "stored_linkedin_profiles";
 const VISIBLE = 'visible';
@@ -41,15 +42,20 @@ chrome.tabs.query({ 'active': true, 'windowId': chrome.windows.WINDOW_ID_CURRENT
 function udpateTableContent() {
     const list = localStorage.getItem(DATA_KEY);
     if (list) {
-        const parsedList = JSON.parse(list);
+        let parsedList = JSON.parse(list);
+        if (search_key.length > 0) {
+            parsedList = parsedList.filter(function (obj) {
+                return obj.id.includes(search_key) || obj.notes.includes(search_key)
+            })
+        }
         let tableData = '';
         for (i = parsedList.length - 1; i >= 0; i--) {
             tableData = tableData + `
                 <tr>
                     <td><a href="${parsedList[i].url}" target="_blank" id="${parsedList[i].id}">${parsedList[i].id}</a></td>
-                    <td><button id="${parsedList[i].id}${NOTES_BUTTON_ID}" type="button" class="btn btn-secondary">Notes</button></td>
+                    <td><button id="${parsedList[i].id}${NOTES_BUTTON_ID}" type="button" class="btn btn-secondary btn-sm"><i id="${parsedList[i].id}${NOTES_BUTTON_ID}-icon" class="fa fa-sticky-note"></i></button></td>
                     <td>${parsedList[i].last_updated}</td>
-                    <td><button id="${parsedList[i].id}${DELETE_BUTTON_ID}" type="button" class="btn btn-danger">Delete</button></td>
+                    <td><button id="${parsedList[i].id}${DELETE_BUTTON_ID}" type="button" class="btn btn-danger btn-sm"><i  id="${parsedList[i].id}${DELETE_BUTTON_ID}-icon" class="fa fa-trash"></i></button></td>
                 </tr>
             `;
         }
@@ -57,7 +63,7 @@ function udpateTableContent() {
     }
 }
 
-document.getElementById(ADD_BUTTON_ID).addEventListener("click", function(e) {
+document.getElementById(ADD_BUTTON_ID).addEventListener("click", function (e) {
     if (windowUrl) {
         const list = localStorage.getItem(DATA_KEY);
         if (list) {
@@ -92,13 +98,16 @@ document.getElementById(ADD_BUTTON_ID).addEventListener("click", function(e) {
 
 document.addEventListener("click", function (e) {
     if (e.target && e.target.id.includes(DELETE_BUTTON_ID)) {
-        const id = e.target.id.split(DELETE_BUTTON_ID)[0];
-        const list = localStorage.getItem(DATA_KEY);
-        if (list) {
-            let parsedList = JSON.parse(list);
-            parsedList = removeObjectById(id, parsedList);
-            setData(parsedList);
-            udpateTableContent();
+        const confirm_check = confirm("Are you sure you want to delete? This action is irreversable")
+        if (confirm_check) {
+            const id = e.target.id.split(DELETE_BUTTON_ID)[0];
+            const list = localStorage.getItem(DATA_KEY);
+            if (list) {
+                let parsedList = JSON.parse(list);
+                parsedList = removeObjectById(id, parsedList);
+                setData(parsedList);
+                udpateTableContent();
+            }
         }
     }
     if (e.target && e.target.id.includes(NOTES_BUTTON_ID)) {
@@ -134,3 +143,13 @@ document.getElementById("save-notes").addEventListener("click", function (e) {
         }
     }
 });
+
+document.getElementById("search-bar").addEventListener('change', function (e) {
+    if (e.target && e.target.value) {
+        search_key = e.target.value;
+        udpateTableContent();
+    } else {
+        search_key = "";
+        udpateTableContent();
+    }
+})
