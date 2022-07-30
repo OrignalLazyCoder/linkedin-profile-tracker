@@ -1,0 +1,14 @@
+{
+    "name": "LinkedIn profile tracker",
+    "version": "0.0.1",
+    "description": "Track status of linkedIn profile",
+    "manifest_version": 3,
+    "author": "Arpit Sharma",
+    "action":{
+        "default_popup": "index.html",
+        "default_title": "Profile Tracker"
+    },
+    "permissions": [
+        "tabs"
+    ]   
+}
